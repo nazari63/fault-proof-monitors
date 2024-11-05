@@ -1,0 +1,117 @@
+use Call, Calls, Contains, HistoricalCalls, MapContains, Max, Sum, Unique, Len, FilterAddressesInTrace, Range from hexagate;
+
+// Add the multicall3 contract address for retrieving block timestamps
+param multicall3: address;
+
+param disputeGame: address;
+
+// Filter to only run this invariant if the disputeGame address is in the trace
+source addressesInTrace: list<address> = FilterAddressesInTrace {
+	addresses: list(disputeGame)
+};
+
+// Get the address of the DelayedWETH contract
+source delayedWETH: address = Call {
+	contract: disputeGame,
+	signature: "function weth() returns (address)"
+};
+
+// In the current block, identify if any ETH has been released from DelayedWETH
+source claims: list<tuple<address>> = Calls {
+	contract: disputeGame,
+	signature: "function claimCredit(address _recipient)"
+};
+source withdrawals: list<tuple<address, integer>> = Calls {
+	contract: delayedWETH,
+	signature: "function withdraw(address _guy, uint256 _wad)"
+};
+
+// Correlate claims from the disputeGame with the corresponding withdrawals and amounts from DelayedWETH
+source claimsAndWithdrawals: list<tuple<address, integer>> = [
+	tuple(withdrawal[0], withdrawal[1])
+	for withdrawal in withdrawals
+	if Contains {
+    	sequence: claims,
+    	item: tuple(withdrawal[0])
+  	}
+];
+
+// Get the expected delay period between an unlock and withdrawal from DelayedWETH (using seconds)
+source delayTime: integer = Call {
+	contract: delayedWETH,
+	signature: "function delay() returns (uint256)"
+};
+
+// **Retrieve unlock calls and get block numbers**
+// Retrieve all the unlock calls from DelayedWETH
+source unlocks: list<tuple<integer, address, tuple<address, integer>>> = HistoricalCalls {
+	contract: delayedWETH,
+	signature: "function unlock(address _guy, uint256 _wad)",
+	withBlocks: true,
+	withSender: true
+};
+
+// Parse out only the unlock calls that originated from the current disputeGame
+source disputeGameUnlocks: list<tuple<integer, address, integer>> = [
+	tuple(unlock[0], unlock[2][0], unlock[2][1])
+	for unlock in unlocks
+	if unlock[1] == disputeGame
+];
+
+// **Retrieve timestamps for unlock block numbers using multicall3**
+// Use the multicall3 contract to get timestamps for each block number
+source unlockTimestamps: list<integer> = [
+	Call {
+		contract: multicall3,
+		signature: "getCurrentBlockTimestamp() public view returns (uint256)",
+		block: unlock[0] // Pass the block number to multicall3
+	}
+	for unlock in disputeGameUnlocks
+];
+
+// Create a mapping of recipients to their unlock timestamps and amounts
+source unlocksAndAmounts: map<address, tuple<list<integer>, list<integer>>> = {
+	recipient: tuple(
+		[unlockTimestamps[idx]
+			for idx in Range { start: 0, stop: Len { sequence: unlockTimestamps } }
+			if disputeGameUnlocks[idx][1] == recipient
+		],
+		[unlock[2]
+			for unlock in disputeGameUnlocks
+			if unlock[1] == recipient
+		]
+	)
+	for recipient in Unique { sequence: [unlock[1] for unlock in disputeGameUnlocks] }
+};
+
+// Get the current block timestamp for the withdrawal event
+source currTimestamp: integer = Call {
+	contract: multicall3,
+	signature: "getCurrentBlockTimestamp() public view returns (uint256)"
+};
+
+// **Compare withdrawal timestamp with the latest unlock timestamp**
+// For each withdrawal, check:
+// 1. There is a correlating unlock for the withdrawal in the mapping
+// 2. The withdrawal amount is equal to the sum of the unlock amounts for the address
+// 3. The time of the withdrawal is greater than the unlock time + delayTime
+source invalidWithdrawals: list<boolean> = [
+	MapContains {
+		map: unlocksAndAmounts,
+		item: claimAndWithdrawal[0]
+	} ? (claimAndWithdrawal[1] != Sum {
+		sequence: unlocksAndAmounts[claimAndWithdrawal[0]][1]
+	}) or ((currTimestamp - Max {
+		sequence: unlocksAndAmounts[claimAndWithdrawal[0]][0]
+	}) <= delayTime)
+	: true
+	for claimAndWithdrawal in claimsAndWithdrawals
+];
+
+// Invariant that triggers an alert if ETH bond is withdrawn too early
+invariant {
+  description: "ETH bond withdrawn too early from DelayedWETH",
+  condition: (Len {sequence: addressesInTrace} > 0) ?
+	(!Contains {sequence: invalidWithdrawals, item: true})
+	: true
+};
