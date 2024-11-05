@@ -1,0 +1,62 @@
+use Len, StateRoot, BlockHash, StorageHash, Keccak256, Events, Call from hexagate;
+
+// Define the DisputeGameFactoryProxy contract address
+param disputeGameFactoryProxy: address;
+// Define the chain ID of the L2 network to perform cross-chain calls with
+param l2ChainId: integer;
+
+// Fetch DisputeGameCreated events from the DisputeGameFactoryProxy
+source disputeGameCreatedEvents: list<tuple<address, integer, bytes>> = Events {
+    contract: disputeGameFactoryProxy,
+    signature: "event DisputeGameCreated(address indexed disputeProxy, uint32 indexed gameType, bytes32 indexed rootClaim)"
+};
+
+// Parse out the Latest DisputeGameCreated event
+source disputeGameCreated: tuple<address, integer, bytes> = disputeGameCreatedEvents[0];
+
+// Extract relevant information from the event
+source disputeProxy: address = disputeGameCreated[0];
+source gameType: integer = disputeGameCreated[1];
+source l2OutputProposal: bytes = disputeGameCreated[2];
+
+// Get the starting block number from the disputeProxy contract
+source blockNumber: integer = Call {
+    contract: disputeProxy,
+    signature: "function l2BlockNumber() public pure returns (uint256 l2BlockNumber_)"
+};
+
+// Get the L2 block hash
+source blockHash: bytes = BlockHash {
+    block: blockNumber,
+    chainId: l2ChainId
+};
+
+// Get the L2 state root
+source stateRoot: bytes = StateRoot {
+    block: blockNumber,
+    chainId: l2ChainId
+};
+
+// Get the L2 message passer storage hash
+source messagePasserStorageHash: bytes = StorageHash {
+    address: 0x4200000000000000000000000000000000000016,
+    block: blockNumber,
+    chainId: l2ChainId
+};
+
+// Compute the L2 output proposal hash
+source computedL2OutputProposal: bytes = Keccak256 {
+    input: bytes(0x0000000000000000000000000000000000000000000000000000000000000000) + stateRoot + messagePasserStorageHash + blockHash
+};
+
+// Invariant to check that the computed L2 output proposal matches the L2 output proposal from the event
+invariant {
+    description: "Dispute game created with correct L2 output proposal",
+    condition: Len { sequence: disputeGameCreatedEvents } > 0 ? computedL2OutputProposal == l2OutputProposal : true
+};
+
+// Invariant to ensure only one DisputeGameCreated event per block
+invariant {
+    description: "Only one DisputeGameCreated event should appear in the same block",
+    condition: Len { sequence: disputeGameCreatedEvents } < 2
+};

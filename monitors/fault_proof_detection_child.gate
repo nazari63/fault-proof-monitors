@@ -1,0 +1,57 @@
+use Call, Calls, Events, Contains, Len, Range from hexagate;
+
+// Parameters to be passed
+param cbChallenger: address;
+param disputeGame: address;
+
+// Source to retrieve `Move` events from the specified dispute game contract
+source moveEvents: list<tuple<integer, bytes, address>> = Events {
+    contract: disputeGame,
+    signature: "event Move(uint256 indexed parentIndex, bytes32 indexed claim, address indexed claimant)"
+};
+
+// Retrieve the number of claims
+source claimCount: integer = Call {
+    contract: disputeGame,
+    signature: "function claimDataLen() view returns (uint256)"
+};
+
+// Create a list of even parent indices (indicating challenge moves)
+source evenParentIndices: list<integer> = Range {
+    start: 0,
+    stop: claimCount,
+    step: 2
+};
+
+// Create a list of odd parent indices (indicating defense moves)
+source oddParentIndices: list<integer> = Range {
+    start: 1,
+    stop: claimCount,
+    step: 2
+};
+
+// Filter the events where the claimant is cbChallenger and the parentIndex is even (challenge move)
+source challengeMoves: list<tuple<integer, bytes, address>> = [
+    event
+    for event in moveEvents
+    if (event[2] == cbChallenger) and Contains { sequence: evenParentIndices, item: event[0] }
+];
+
+// Filter the events where parentIndex is odd (defense move) and attacker defending
+source defenseMoves: list<tuple<integer, bytes, address>> = [
+    event
+    for event in moveEvents
+    if Contains { sequence: oddParentIndices, item: event[0] }
+];
+
+// Invariant to trigger an alert if attacker is defending a invalid output root
+invariant {
+    description: "Attacker is defending the output root",
+    condition: Len { sequence: moveEvents } == 0 ? true : Len { sequence: challengeMoves } > 0
+};
+
+// Invariant to trigger an alert if cbChallenger is challenging the invalid output root
+invariant {
+    description: "CB challenger is challenging the invalid output root submitted",
+    condition: Len { sequence: moveEvents } == 0 ? true : Len { sequence: defenseMoves } > 0
+};
