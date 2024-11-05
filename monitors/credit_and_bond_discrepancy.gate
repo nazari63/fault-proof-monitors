@@ -1,0 +1,63 @@
+use Call, Contains, Calls, Events, Len, FilterAddressesInTrace from hexagate;
+param disputeGame: address;
+
+// Filter to only run this invariant if the disputeGame address is in the trace
+source addressesInTrace: list<address> = FilterAddressesInTrace {
+    addresses: list(disputeGame)
+};
+
+// Retrieve the resolveClaim calls on the dispute game contract for the current block
+source resolveCalls: list<tuple<integer, integer>> = Calls {
+    contract: disputeGame,
+    signature: "function resolveClaim(uint256 _claimIndex, uint256 _numToResolve)"
+};
+
+// Get the DelayedWETH contract address from the dispute game contract
+source delayedWeth: address = Call {
+    contract: disputeGame,
+    signature: "function weth() returns (address)"
+};
+
+source zeroAddress: address = 0x0000000000000000000000000000000000000000;
+
+// Retrieve the unlock calls on the DelayedWETH contract for the current block
+source unlocks: list<tuple<address, integer>> = Calls {
+    contract: delayedWeth,
+    signature: "function unlock(address _guy, uint256 _wad)"
+};
+
+// Given the list of claim indices in resolveCalls, use the indices to retreive the claim data
+source claimData: list<
+  tuple<integer,address,address,integer,bytes,integer,integer>
+> = [
+    Call {
+        contract: disputeGame,
+        signature: "function claimData(uint256 idx) returns (uint32,address,address,uint128,bytes32,uint128,uint128)",
+        params: tuple(call[0])
+    }
+    for call in resolveCalls
+];
+
+// From the claim data, we can derive the claimant (recipient) and the bond value they should receive
+source winnersAndBonds: list<tuple<address, integer>> = [
+    // If counteredBy is not address(0) then the recipient is the counterer, otherwise it will be the claimant
+    // Also store the bond amount (claim[3]) that the recipient should receive
+    tuple(claim[1] != zeroAddress ? claim[1] : claim[2], claim[3])
+    for claim in claimData
+];
+
+// The unlocks array is [[address, bond], ...] and so is winnersAndBonds
+// Therefore, we can compare each item in winnersAndBonds to the unlocks list - where we should find an item
+// in the unlocks list with the exact same bond value
+source foundUnlocks: list<boolean> = [
+    Contains { sequence: unlocks, item: winnerAndBond }
+    for winnerAndBond in winnersAndBonds
+];
+
+invariant {
+    description: "Could not find matching unlock",
+    condition: (Len { sequence: addressesInTrace } > 0) ? (!Contains {
+        sequence: foundUnlocks,
+        item: false
+    }) : true
+};
