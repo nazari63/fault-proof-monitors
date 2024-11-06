@@ -51,7 +51,7 @@ source computedL2OutputProposal: bytes = Keccak256 {
 
 // Invariant to check that the computed L2 output proposal matches the L2 output proposal from the event
 invariant {
-    description: "Dispute game created with correct L2 output proposal",
+    description: "Dispute game created with incorrect L2 output proposal",
     condition: Len { sequence: disputeGameCreatedEvents } > 0 ? computedL2OutputProposal == l2OutputProposal : true
 };
 
