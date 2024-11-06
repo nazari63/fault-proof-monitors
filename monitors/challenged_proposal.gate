@@ -1,0 +1,55 @@
+use Call, Events, Contains, Range, Len from hexagate;
+
+param disputeGame: address;
+param cbProposer: address;
+param cbChallenger: address;
+
+// Source to retrieve `Move` events from the specified dispute game contract
+source moveEvents: list<tuple<integer, bytes, address>> = Events {
+    contract: disputeGame,
+    signature: "event Move(uint256 indexed parentIndex, bytes32 indexed claim, address indexed claimant)"
+};
+
+// Retrieve the number of claims
+source claimCount: integer = Call {
+    contract: disputeGame,
+    signature: "function claimDataLen() view returns (uint256)"
+};
+
+// Retrieve the claim data for each claim index
+source claimData: list<tuple<integer,address,address,integer,bytes,integer,integer>> = [
+    Call {
+        contract: disputeGame,
+        signature: "function claimData(uint256 idx) view returns (uint32,address,address,uint128,bytes32,uint128,uint128)",
+        params: tuple(index)
+    }
+    for index in Range { start: 0, stop: claimCount }
+];
+
+// Parse out the root claim proposer address - the root claim is the claim at position 0 in the claimData list
+source rootClaimProposer: address = claimData[0][2];
+
+// Make a list of event numbers, which are the subgame depths that correspond to defense claims
+// All attacks that are ultimately challenges to the root claim will have a parentIndex that is even
+source attackClaimParentIndices: list<integer> = Range {
+    start: 0,
+    stop: claimCount, // claimCount already includes a +1
+    step: 2
+};
+
+// Check the rest of the claims for the following conditions:
+//   1) Is the proposer of the claim CB Challenger
+//   2) Is the claim attacking the root claim - we can determine if an "attack" against the root claim is happening
+//      by checking the parentIndex of the claim. If the parentIndex is 0 or an even number, then the claim is an
+//      attack ultimately against the root claim, no matter the depth.
+source challengerAttacks: list<boolean> = [
+    (claim[2] == cbChallenger) and Contains { sequence: attackClaimParentIndices, item: claim[0] }
+    for claim in claimData
+    if (rootClaimProposer == cbProposer)
+];
+
+// Trigger an alert when an attack by the CB challenger on a state output root proposed by the CB proposer is detected
+invariant {
+    description: "CB challenger attacked a state output root proposed by CB proposer",
+    condition: Len { sequence: moveEvents } > 0 ? !Contains { sequence: challengerAttacks, item: true } : true
+};

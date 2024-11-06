@@ -1,0 +1,37 @@
+use BlockTimestamp, Call from hexagate;
+
+// Parameters
+param disputeGame: address;
+// extraTimeInSeconds adds more time to the expected resolution date of a dispute game, mostly to handle
+//   the situation where the game is handling clock extensions, which can extend a game past 7 days
+param extraTimeInSeconds: integer;
+
+// Fetch the creation timestamp of the dispute game
+source creationTimestamp: integer = Call {
+    contract: disputeGame,
+    signature: "function createdAt() returns (uint256)"
+};
+
+// Fetch the max clock duration for the dispute game
+source gameDuration: integer = Call {
+    contract: disputeGame,
+    signature: "function maxClockDuration() returns (uint256)"
+};
+
+// Fetch the resolved timestamp of the dispute game
+source resolvedAt: integer = Call {
+    contract: disputeGame,
+    signature: "function resolvedAt() returns (uint256)"
+};
+
+// Calculate the expected resolution timestamp
+source expectedResolutionTimestamp: integer = creationTimestamp + (2 * gameDuration) + extraTimeInSeconds;
+
+// Get the current block timestamp
+source currentTimestamp: integer = BlockTimestamp {};
+
+// Define the invariant to alert if the dispute game is unresolved
+invariant {
+    description: "Dispute game is unresolved",
+    condition: resolvedAt != 0 or currentTimestamp <= (expectedResolutionTimestamp)
+};

@@ -1,0 +1,96 @@
+use BlockNumber, Call, Calls, Contains, HistoricalEvents, Len, MapContains, Unique, Zip from hexagate;
+
+param optimismPortalProxy: address;
+
+// Get the DisputeGameFactory contract address
+source disputeGameFactory: address = Call {
+    contract: optimismPortalProxy,
+    signature: "function disputeGameFactory() returns (address)"
+};
+
+// Get the current respected gameType
+source respectedGameType: integer = Call {
+    contract: optimismPortalProxy,
+    signature: "function respectedGameType() returns (uint32)"
+};
+
+// Get the current block number
+source currBlock: integer = BlockNumber {};
+
+// Get the create function calls on the DisputeGameFactory for the current block
+source newDisputeGames: list<tuple<integer, bytes, bytes>> = Calls {
+    contract: disputeGameFactory,
+    signature: "function create(uint32 _gameType, bytes32 _rootClaim, bytes _extraData)"
+};
+
+// Get all the DisputeGameCreated events emitted from the DisputeGameFactory
+// We'll need the block numbers as well
+source createdDisputeGames: list<tuple<integer,tuple<address,integer,bytes>>> = HistoricalEvents {
+    contract: disputeGameFactory,
+    signature: "event DisputeGameCreated(address indexed disputeProxy, uint32 indexed gameType, bytes32 indexed rootClaim)",
+    withBlocks: true
+};
+
+// Now we need to get the extraData, because it doesn't come with the DisputeGameCreated event
+// And then we need to zip the two data structures together
+source createdDisputeGamesExtraData: list<bytes> = [
+    Call {
+        contract: game[1][0],
+        signature: "function extraData() returns (bytes extraData_)"
+    }
+    for game in createdDisputeGames
+];
+
+// tuple[0][0] = block number, tuple[0][1][X] = dispute game info, tuple[1] = game extraData
+source createdDisputeGamesAndInfo: list<tuple<tuple<integer,tuple<address,integer,bytes>>,bytes>> = Zip {
+    first: createdDisputeGames,
+    second: createdDisputeGamesExtraData
+};
+
+// For both the current and past created dispute games, the unique identifier is its UUID, which is a
+//   calculation that takes in the gameType, rootClaim, and extraData from a game
+// So we need to calculate the UUID for all the dispute games
+// Note: We only care about the created dispute games that have been created with the current respected game type
+source newDisputeGameUUIDs: list<bytes> = [
+    Call {
+        contract: disputeGameFactory,
+        signature: "function getGameUUID(uint32 _gameType, bytes32 _rootClaim, bytes _extraData) returns (bytes32 uuid_)",
+        params: tuple(game[0], game[1], game[2])
+    }
+    for game in newDisputeGames if (game[0] == respectedGameType)
+];
+
+// Note: We only care about the created dispute games that have been created with the current respected game type
+//       AND the block number is not the current block number
+source previousDisputeGameUUIDs: list<bytes> = [
+    Call {
+        contract: disputeGameFactory,
+        signature: "function getGameUUID(uint32 _gameType, bytes32 _rootClaim, bytes _extraData) returns (bytes32 uuid_)",
+        params: tuple(game[0][1][1], game[0][1][2], game[1])
+    }
+    for game in createdDisputeGamesAndInfo if (game[0][1][1] == respectedGameType) and (game[0][0] < currBlock)
+];
+
+// Parse out the game UUIDs from previousDisputeGameUUIDs as a mapping
+// The mapping will look like {key: UUID, value: true (doesn't matter)}
+source createdGameUUIDs: map<bytes, boolean> = {
+    gameUUID: true
+    for gameUUID in previousDisputeGameUUIDs
+};
+
+// For each UUID in the newDisputeGameUUIDs list check if the UUID already exists in the mapping
+source foundDuplicateGameInfo: list<boolean> = [
+    MapContains { map: createdGameUUIDs, item: newGameUUID } == true
+    for newGameUUID in newDisputeGameUUIDs
+];
+
+// We also need to check if any of the new dispute games have the same UUID
+source duplicateNewDisputeGameUUIDs: list<bytes> = Unique {
+    sequence: newDisputeGameUUIDs
+};
+
+invariant {
+    description: "Duplicate Game UUID (Dispute Game Type, Root Claim, and Extra Data) Detected",
+    condition: !Contains { sequence: foundDuplicateGameInfo, item: true }
+                 and (Len { sequence: newDisputeGameUUIDs } == Len { sequence: duplicateNewDisputeGameUUIDs })
+};
