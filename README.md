@@ -10,7 +10,7 @@ Each monitor in this repository targets specific aspects of the fault proof syst
 
 ### Table of Monitors
 
-| Monitor | Tests | Docs | Implementation |
+| Monitor | Tests | Docs | Deployment |
 | ------- | ----- | ---- | ---- |
 | [challenged_proposal.gate](./monitors/challenged_proposal.gate) | [challenged_proposal_test.go](./tests/challenged_proposal_test.go) | [challenged_proposal.md](./docs/challenged_proposal.md) | perDisputeGame |
 | [challenger_loses.gate](./monitors/challenger_loses.gate) | [challenger_loses_test.go](./tests/challenger_loses_test.go) | [challenger_loses.md](./docs/challenger_loses.md) | perDisputeGame |
