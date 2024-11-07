@@ -1,6 +1,6 @@
 ## Purpose
 
-The `eth_deficit.gate` monitor ensures the **safety** and integrity of the fault proof system by detecting any deficits of ETH in the `DelayedWETH` contract associated with the specified dispute game. The `DelayedWETH` contract holds the ETH bonds deposited by participants in dispute games. A deficit indicates that more ETH has been withdrawn than should be allowed, potentially due to bugs in bond accounting or dispute game resolution, which can result in financial losses for honest participants. Note this monitor tracks deficits in relation to the Challenger (`cbChallenger`), who is assumed to be operating honestly and participating in every dispute game as necessary.
+The `eth_deficit.gate` monitor ensures the **safety** and integrity of the fault proof system by detecting any deficits of ETH in the `DelayedWETH` contract associated with the specified dispute game. The `DelayedWETH` contract holds the ETH bonds deposited by participants in dispute games. A deficit indicates that more ETH has been withdrawn than should be allowed, potentially due to bugs in bond accounting or dispute game resolution, which can result in financial losses for honest participants. Note this monitor tracks deficits in relation to the Challenger (`honestChallenger`), who is assumed to be operating honestly and participating in every dispute game as necessary.
 
 ## Technical Overview
 
@@ -10,9 +10,9 @@ The `eth_deficit.gate` monitor ensures the **safety** and integrity of the fault
 
    - **DelayedWETH Address**: Retrieves the `DelayedWETH` contract address associated with the specific `disputeGame`.
 
-   - **Challenger's Claim Credit (`claimCredit`)**: The amount of ETH that the Challenger (`cbChallenger`) can currently claim from the `disputeGame`.
+   - **Challenger's Claim Credit (`claimCredit`)**: The amount of ETH that the Challenger (`honestChallenger`) can currently claim from the `disputeGame`.
 
-   - **Challenger's Total Credit (`totalCredit`)**: The total amount of ETH that has been unlocked for the `cbChallenger` in the `DelayedWETH` contract.
+   - **Challenger's Total Credit (`totalCredit`)**: The total amount of ETH that has been unlocked for the `honestChallenger` in the `DelayedWETH` contract.
 
    - **Dispute Game's ETH Balance (`ethBalanceDisputeGame`)**: The total amount of ETH held in the `DelayedWETH` contract for the `disputeGame`.
 
@@ -47,4 +47,4 @@ The `eth_deficit.gate` monitor ensures the **safety** and integrity of the fault
 ## Parameters
 
 - `disputeGame`: Address of the dispute game contract being monitored.
-- `cbChallenger`: Address of the Challenger.
+- `honestChallenger`: Address of the Challenger.

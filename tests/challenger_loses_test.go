@@ -10,13 +10,13 @@ var (
 	monitorThirteenFile = "challenger_loses.gate"
 )
 
-func TestCbChallengerLostTopLevelChallenge(t *testing.T) {
-	// We expect an alert to be fired if the cb challenger was challenging a root claim and the claim resolved in favor of the defenders
+func TestChallengerLostTopLevelChallenge(t *testing.T) {
+	// We expect an alert to be fired if the honest challenger was challenging a root claim and the claim resolved in favor of the defenders
 
 	// set the params
 	params := map[string]any{
-		"disputeGame":  "0x000000000000000000000000000000000000000",
-		"cbChallenger": "0x49277EE36A024120Ee218127354c4a3591dc90A9",
+		"disputeGame":      "0x000000000000000000000000000000000000000",
+		"honestChallenger": "0x49277EE36A024120Ee218127354c4a3591dc90A9",
 	}
 
 	// read in the gate file
@@ -32,8 +32,8 @@ func TestCbChallengerLostTopLevelChallenge(t *testing.T) {
 			{2}, // resolution status of the dispute game, 2 = DEFENDER_WINS
 		},
 		"historicalMoveEvents": [][]interface{}{
-			{0, "0x00", "0x49277EE36A024120Ee218127354c4a3591dc90A9"}, // cb challenger attacks root claim
-			{1, "0x01", "0x00000000000000000000000000000000000000AA"}, // defender moves against cb challenger
+			{0, "0x00", "0x49277EE36A024120Ee218127354c4a3591dc90A9"}, // challenger attacks root claim
+			{1, "0x01", "0x00000000000000000000000000000000000000AA"}, // defender moves against challenger
 		},
 		"claimCount": 3, // 3 claims total, inclusive of the root claim which doesn't count as a Move
 		"claimResults": [][]interface{}{
@@ -64,7 +64,7 @@ func TestCbChallengerLostTopLevelChallenge(t *testing.T) {
 		t.Errorf("Monitor did not fire an alert for %s when it was supposed to", monitorThirteenFile)
 	}
 
-	expectedAlert := "CB challenger lost the dispute game while challenging a state root"
+	expectedAlert := "Challenger lost the dispute game while challenging a state root"
 	foundAlert := false
 	// we expect to see the specific alert fired
 	for _, alert := range failed {
@@ -82,13 +82,13 @@ func TestCbChallengerLostTopLevelChallenge(t *testing.T) {
 	}
 }
 
-func TestCbChallengerLostTopLevelDefenseAndSubgame(t *testing.T) {
-	// We expect an alert to be fired if the cb challenger was defending a root claim and the claim resolved in favor of the other challengers
+func TestChallengerLostTopLevelDefenseAndSubgame(t *testing.T) {
+	// We expect an alert to be fired if the honest challenger was defending a root claim and the claim resolved in favor of the other challengers
 
 	// set the params
 	params := map[string]any{
-		"disputeGame":  "0x0000000000000000000000000000000000000000",
-		"cbChallenger": "0x49277EE36A024120Ee218127354c4a3591dc90A9",
+		"disputeGame":      "0x0000000000000000000000000000000000000000",
+		"honestChallenger": "0x49277EE36A024120Ee218127354c4a3591dc90A9",
 	}
 
 	// read in the gate file
@@ -105,8 +105,8 @@ func TestCbChallengerLostTopLevelDefenseAndSubgame(t *testing.T) {
 		},
 		"historicalMoveEvents": [][]interface{}{
 			{0, "0x00", "0x00000000000000000000000000000000000000AA"}, // attacker challenges root claim
-			{1, "0x01", "0x49277EE36A024120Ee218127354c4a3591dc90A9"}, // cb challenger defends root claim by challenging the attacker's claim
-			{2, "0x02", "0x00000000000000000000000000000000000000AA"}, // attacker challenges cb challenger's claim
+			{1, "0x01", "0x49277EE36A024120Ee218127354c4a3591dc90A9"}, // challenger defends root claim by challenging the attacker's claim
+			{2, "0x02", "0x00000000000000000000000000000000000000AA"}, // attacker challenges honest challenger's claim
 		},
 		"claimCount": 4, // 4 claims total, inclusive of the root claim which doesn't count as a Move
 		"claimResults": [][]interface{}{
@@ -114,7 +114,7 @@ func TestCbChallengerLostTopLevelDefenseAndSubgame(t *testing.T) {
 			{11111111, "0x00000000000000000000000000000000000000AA", "0x00000000000000000000000000000000000000BB", 0, "0x00", 0, 123455},
 			// attacker claim was not countered
 			{0, "0x0000000000000000000000000000000000000000", "0x00000000000000000000000000000000000000AA", 1, "0x11", 1, 123456},
-			// cb challenger defense move was countered
+			// honest challenger defense move was countered
 			{1, "0x00000000000000000000000000000000000000AA", "0x49277EE36A024120Ee218127354c4a3591dc90A9", 2, "0x22", 2, 123457},
 			// attacker claim was not countered
 			{2, "0x0000000000000000000000000000000000000000", "0x00000000000000000000000000000000000000AA", 3, "0x33", 3, 123458},
@@ -139,7 +139,7 @@ func TestCbChallengerLostTopLevelDefenseAndSubgame(t *testing.T) {
 		t.Errorf("Monitor did not fire an alert for %s when it was supposed to", monitorThirteenFile)
 	}
 
-	expectedAlert := "CB challenger lost the dispute game while defending a state root"
+	expectedAlert := "Challenger lost the dispute game while defending a state root"
 	foundAlert := false
 	// we expect to see the specific alert fired
 	for _, alert := range failed {
@@ -157,13 +157,13 @@ func TestCbChallengerLostTopLevelDefenseAndSubgame(t *testing.T) {
 	}
 }
 
-func TestCbChallengerLostSubgames(t *testing.T) {
-	// We expect an alert to be fired when the CB challenger loses any subgame claim, even if the top-level game was won
+func TestChallengerLostSubgames(t *testing.T) {
+	// We expect an alert to be fired when the honest challenger loses any subgame claim, even if the top-level game was won
 
 	// set the params
 	params := map[string]any{
-		"disputeGame":  "0x0000000000000000000000000000000000000000",
-		"cbChallenger": "0x49277EE36A024120Ee218127354c4a3591dc90A9",
+		"disputeGame":      "0x0000000000000000000000000000000000000000",
+		"honestChallenger": "0x49277EE36A024120Ee218127354c4a3591dc90A9",
 	}
 
 	// read in the gate file
@@ -180,9 +180,9 @@ func TestCbChallengerLostSubgames(t *testing.T) {
 		},
 		"historicalMoveEvents": [][]interface{}{
 			{0, "0x00", "0x00000000000000000000000000000000000000AA"}, // attacker challenges root claim
-			{1, "0x1a", "0x49277EE36A024120Ee218127354c4a3591dc90A9"}, // cb challenger defends root claim by challenging the attacker's claim
-			{1, "0x1b", "0x49277EE36A024120Ee218127354c4a3591dc90A9"}, // cb challenger (unrealistically) defends the root claim again on the same claim index
-			{2, "0x02", "0x00000000000000000000000000000000000000AA"}, // attacker challenges one of cb challenger's claim
+			{1, "0x1a", "0x49277EE36A024120Ee218127354c4a3591dc90A9"}, // challenger defends root claim by challenging the attacker's claim
+			{1, "0x1b", "0x49277EE36A024120Ee218127354c4a3591dc90A9"}, // challenger (unrealistically) defends the root claim again on the same claim index
+			{2, "0x02", "0x00000000000000000000000000000000000000AA"}, // attacker challenges one of the honest challenger's claim
 		},
 		"claimCount": 5, // 5 claims total, inclusive of the root claim which doesn't count as a Move
 		"claimResults": [][]interface{}{
@@ -190,11 +190,11 @@ func TestCbChallengerLostSubgames(t *testing.T) {
 			{11111111, "0x0000000000000000000000000000000000000000", "0x00000000000000000000000000000000000000BB", 0, "0x00", 0, 123455},
 			// attacker claim on root claim is countered
 			{0, "0x49277EE36A024120Ee218127354c4a3591dc90A9", "0x00000000000000000000000000000000000000AA", 1, "0x33", 1, 123456},
-			// cb challenger first defense move is uncountered
+			// challenger first defense move is uncountered
 			{1, "0x0000000000000000000000000000000000000000", "0x49277EE36A024120Ee218127354c4a3591dc90A9", 2, "0x11", 2, 123457},
-			// cb challenger second defense move was countered
+			// challenger second defense move was countered
 			{1, "0x00000000000000000000000000000000000000AA", "0x49277EE36A024120Ee218127354c4a3591dc90A9", 2, "0x22", 2, 123458},
-			// attacker claim on cb challenger's second defense move was not countered
+			// attacker claim on honest challenger's second defense move was not countered
 			{2, "0x0000000000000000000000000000000000000000", "0x00000000000000000000000000000000000000AA", 3, "0x33", 3, 123459},
 		},
 	}
@@ -217,7 +217,7 @@ func TestCbChallengerLostSubgames(t *testing.T) {
 		t.Errorf("Monitor did not fire an alert for %s when it was supposed to", monitorThirteenFile)
 	}
 
-	expectedAlert := "CB challenger lost one or more subgames"
+	expectedAlert := "Challenger lost one or more subgames"
 	foundAlert := false
 	// we expect to see the specific alert fired
 	for _, alert := range failed {
@@ -235,13 +235,13 @@ func TestCbChallengerLostSubgames(t *testing.T) {
 	}
 }
 
-func TestCbChallengerWins(t *testing.T) {
-	// We DO NOT expect an alert to be fired when the CB challenger wins all the claims it makes
+func TestChallengerWins(t *testing.T) {
+	// We DO NOT expect an alert to be fired when the honest challenger wins all the claims it makes
 
 	// set the params
 	params := map[string]any{
-		"disputeGame":  "0x0000000000000000000000000000000000000000",
-		"cbChallenger": "0x49277EE36A024120Ee218127354c4a3591dc90A9",
+		"disputeGame":      "0x0000000000000000000000000000000000000000",
+		"honestChallenger": "0x49277EE36A024120Ee218127354c4a3591dc90A9",
 	}
 
 	// read in the gate file
@@ -257,13 +257,13 @@ func TestCbChallengerWins(t *testing.T) {
 			{1}, // resolution status of the dispute game, 1 = CHALLENGER_WINS
 		},
 		"historicalMoveEvents": [][]interface{}{
-			{0, "0x00", "0x49277EE36A024120Ee218127354c4a3591dc90A9"}, // cb challenger attacks root claim
+			{0, "0x00", "0x49277EE36A024120Ee218127354c4a3591dc90A9"}, // honest hallenger attacks root claim
 		},
 		"claimCount": 2, // 2 claims total, inclusive of the root claim which doesn't count as a Move
 		"claimResults": [][]interface{}{
-			// root claim was countered by cb challenger
+			// root claim was countered by the honest challenger
 			{11111111, "0x49277EE36A024120Ee218127354c4a3591dc90A9", "0x00000000000000000000000000000000000000AA", 0, "0x00", 0, 123455},
-			// cb challenger claim was not countered
+			// challenger claim was not countered
 			{0, "0x0000000000000000000000000000000000000000", "0x49277EE36A024120Ee218127354c4a3591dc90A9", 1, "0x00", 1, 123456},
 		},
 	}
@@ -287,13 +287,13 @@ func TestCbChallengerWins(t *testing.T) {
 	}
 }
 
-func TestCbChallengerGameInProgress(t *testing.T) {
+func TestChallengerGameInProgress(t *testing.T) {
 	// We DO NOT expect an alert to be fired when the dispute game is still in progress
 
 	// set the params
 	params := map[string]any{
-		"disputeGame":  "0x0000000000000000000000000000000000000000",
-		"cbChallenger": "0x49277EE36A024120Ee218127354c4a3591dc90A9",
+		"disputeGame":      "0x0000000000000000000000000000000000000000",
+		"honestChallenger": "0x49277EE36A024120Ee218127354c4a3591dc90A9",
 	}
 
 	// read in the gate file
@@ -309,7 +309,7 @@ func TestCbChallengerGameInProgress(t *testing.T) {
 			{0}, // resolution status of the dispute game, 0 = IN_PROGRESS
 		},
 		"historicalMoveEvents": [][]interface{}{
-			{0, "0x00", "0x49277EE36A024120Ee218127354c4a3591dc90A9"}, // cb challenger attacks root claim
+			{0, "0x00", "0x49277EE36A024120Ee218127354c4a3591dc90A9"}, // honest challenger attacks root claim
 		},
 		"claimCount": 2, // 2 claims total, inclusive of the root claim which doesn't count as a Move
 		"claimResults": [][]interface{}{
@@ -338,13 +338,13 @@ func TestCbChallengerGameInProgress(t *testing.T) {
 	}
 }
 
-func TestCbChallengerLostTopLevelChallengeNoFilterAddress(t *testing.T) {
-	// We DO NOT expect an alert to be fired when the CB challenger loses a top-level challenge and there is no filtered address
+func TestChallengerLostTopLevelChallengeNoFilterAddress(t *testing.T) {
+	// We DO NOT expect an alert to be fired when the honest challenger loses a top-level challenge and there is no filtered address
 
 	// set the params
 	params := map[string]any{
-		"disputeGame":  "0x000000000000000000000000000000000000000",
-		"cbChallenger": "0x49277EE36A024120Ee218127354c4a3591dc90A9",
+		"disputeGame":      "0x000000000000000000000000000000000000000",
+		"honestChallenger": "0x49277EE36A024120Ee218127354c4a3591dc90A9",
 	}
 
 	// read in the gate file
@@ -359,14 +359,14 @@ func TestCbChallengerLostTopLevelChallengeNoFilterAddress(t *testing.T) {
 			{2}, // resolution status of the dispute game, 2 = DEFENDER_WINS
 		},
 		"historicalMoveEvents": [][]interface{}{
-			{0, "0x00", "0x49277EE36A024120Ee218127354c4a3591dc90A9"}, // cb challenger attacks root claim
-			{1, "0x01", "0x00000000000000000000000000000000000000AA"}, // defender moves against cb challenger
+			{0, "0x00", "0x49277EE36A024120Ee218127354c4a3591dc90A9"}, // honest challenger attacks root claim
+			{1, "0x01", "0x00000000000000000000000000000000000000AA"}, // defender moves against the honest challenger
 		},
 		"claimCount": 3, // 3 claims total, inclusive of the root claim which doesn't count as a Move
 		"claimResults": [][]interface{}{
 			// root claim was not countered
 			{11111111, "0x0000000000000000000000000000000000000000", "0x00000000000000000000000000000000000000AA", 0, "0x00", 0, 123455},
-			// cb challenger claim was countered successfully
+			// challenger claim was countered successfully
 			{0, "0x00000000000000000000000000000000000000AA", "0x49277EE36A024120Ee218127354c4a3591dc90A9", 1, "0x00", 1, 123456},
 			// defender claim was also not countered
 			{1, "0x0000000000000000000000000000000000000000", "0x00000000000000000000000000000000000000AA", 2, "0x00", 2, 123457},
@@ -392,13 +392,13 @@ func TestCbChallengerLostTopLevelChallengeNoFilterAddress(t *testing.T) {
 	}
 }
 
-func TestCbChallengerLostTopLevelDefenseAndSubgameNoFilterAddress(t *testing.T) {
-	// We DO NOT expect an alert to be fired when the CB challenger loses a top-level defense and subgame and there is no filtered address
+func TestChallengerLostTopLevelDefenseAndSubgameNoFilterAddress(t *testing.T) {
+	// We DO NOT expect an alert to be fired when the honest challenger loses a top-level defense and subgame and there is no filtered address
 
 	// set the params
 	params := map[string]any{
-		"disputeGame":  "0x0000000000000000000000000000000000000000",
-		"cbChallenger": "0x49277EE36A024120Ee218127354c4a3591dc90A9",
+		"disputeGame":      "0x0000000000000000000000000000000000000000",
+		"honestChallenger": "0x49277EE36A024120Ee218127354c4a3591dc90A9",
 	}
 
 	// read in the gate file
@@ -414,8 +414,8 @@ func TestCbChallengerLostTopLevelDefenseAndSubgameNoFilterAddress(t *testing.T) 
 		},
 		"historicalMoveEvents": [][]interface{}{
 			{0, "0x00", "0x00000000000000000000000000000000000000AA"}, // attacker challenges root claim
-			{1, "0x01", "0x49277EE36A024120Ee218127354c4a3591dc90A9"}, // cb challenger defends root claim by challenging the attacker's claim
-			{2, "0x02", "0x00000000000000000000000000000000000000AA"}, // attacker challenges cb challenger's claim
+			{1, "0x01", "0x49277EE36A024120Ee218127354c4a3591dc90A9"}, // honest challenger defends root claim by challenging the attacker's claim
+			{2, "0x02", "0x00000000000000000000000000000000000000AA"}, // attacker challenges the honest challenger's claim
 		},
 		"claimCount": 4, // 4 claims total, inclusive of the root claim which doesn't count as a Move
 		"claimResults": [][]interface{}{
@@ -423,7 +423,7 @@ func TestCbChallengerLostTopLevelDefenseAndSubgameNoFilterAddress(t *testing.T) 
 			{11111111, "0x00000000000000000000000000000000000000AA", "0x00000000000000000000000000000000000000BB", 0, "0x00", 0, 123455},
 			// attacker claim was not countered
 			{0, "0x0000000000000000000000000000000000000000", "0x00000000000000000000000000000000000000AA", 1, "0x11", 1, 123456},
-			// cb challenger defense move was countered
+			// challenger defense move was countered
 			{1, "0x00000000000000000000000000000000000000AA", "0x49277EE36A024120Ee218127354c4a3591dc90A9", 2, "0x22", 2, 123457},
 			// attacker claim was not countered
 			{2, "0x0000000000000000000000000000000000000000", "0x00000000000000000000000000000000000000AA", 3, "0x33", 3, 123458},
@@ -449,13 +449,13 @@ func TestCbChallengerLostTopLevelDefenseAndSubgameNoFilterAddress(t *testing.T) 
 	}
 }
 
-func TestCbChallengerLostSubgamesNoFilterAddress(t *testing.T) {
-	// We DO NOT expect an alert to be fired when the CB challenger loses any subgame claim and there is no filtered address
+func TestChallengerLostSubgamesNoFilterAddress(t *testing.T) {
+	// We DO NOT expect an alert to be fired when the honest challenger loses any subgame claim and there is no filtered address
 
 	// set the params
 	params := map[string]any{
-		"disputeGame":  "0x0000000000000000000000000000000000000000",
-		"cbChallenger": "0x49277EE36A024120Ee218127354c4a3591dc90A9",
+		"disputeGame":      "0x0000000000000000000000000000000000000000",
+		"honestChallenger": "0x49277EE36A024120Ee218127354c4a3591dc90A9",
 	}
 
 	// read in the gate file
@@ -470,13 +470,13 @@ func TestCbChallengerLostSubgamesNoFilterAddress(t *testing.T) {
 			{1}, // resolution status of the dispute game, 1 = CHALLENGER_WINS
 		},
 		"historicalMoveEvents": [][]interface{}{
-			{0, "0x00", "0x49277EE36A024120Ee218127354c4a3591dc90A9"}, // cb challenger attacks root claim
+			{0, "0x00", "0x49277EE36A024120Ee218127354c4a3591dc90A9"}, // honest challenger attacks root claim
 		},
 		"claimCount": 2, // 2 claims total, inclusive of the root claim which doesn't count as a Move
 		"claimResults": [][]interface{}{
 			// root claim was countered by cb challenger
 			{11111111, "0x49277EE36A024120Ee218127354c4a3591dc90A9", "0x00000000000000000000000000000000000000AA", 0, "0x00", 0, 123455},
-			// cb challenger claim was not countered
+			// challenger claim was not countered
 			{0, "0x0000000000000000000000000000000000000000", "0x49277EE36A024120Ee218127354c4a3591dc90A9", 1, "0x00", 1, 123456},
 		},
 	}

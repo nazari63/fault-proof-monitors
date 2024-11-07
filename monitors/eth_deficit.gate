@@ -1,7 +1,7 @@
 use Call from hexagate;
 
 param disputeGame: address;
-param cbChallenger: address;
+param honestChallenger: address;
 
 // Get the delayedWETH address for the particular dispute game
 source delayedWETH: address = Call {
@@ -9,18 +9,18 @@ source delayedWETH: address = Call {
     signature: "function weth() returns(address)"
 };
 
-// Get the credit due to the CB challenger from the dispute game
+// Get the credit due to the honest challenger from the dispute game
 source claimCredit: integer = Call {
     contract: disputeGame,
     signature: "function credit(address) returns (uint256)",
-    params: tuple(cbChallenger)
+    params: tuple(honestChallenger)
 };
 
-// Get the total credit amount set to be unlocked for the CB challenger from DelayedWETH
+// Get the total credit amount set to be unlocked for the honest challenger from DelayedWETH
 source totalCredit: tuple<integer,integer> = Call {
     contract: delayedWETH,
     signature: "function withdrawals(address game, address recipient) returns (uint256 amount, uint256 timestamp)",
-    params: tuple(disputeGame, cbChallenger)
+    params: tuple(disputeGame, honestChallenger)
 };
 
 // Get the balance of ETH for the disputeGame address in DelayedWETH

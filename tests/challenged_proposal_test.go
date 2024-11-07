@@ -14,9 +14,9 @@ func TestChallengedProposalChallengerAttacksRootClaim(t *testing.T) {
 
 	// set the params, which DO matter for these tests
 	params := map[string]any{
-		"disputeGame":  "0x0000000000000000000000000000000000000000",
-		"cbProposer":   "0x49277EE36A024120Ee218127354c4a3591dc90A9",
-		"cbChallenger": "0xc96775081bcA132B0E7cbECDd0B58d9Ec07Fdaa4",
+		"disputeGame":      "0x0000000000000000000000000000000000000000",
+		"honestProposer":   "0x49277EE36A024120Ee218127354c4a3591dc90A9",
+		"honestChallenger": "0xc96775081bcA132B0E7cbECDd0B58d9Ec07Fdaa4",
 	}
 
 	// read in the gate file
@@ -35,7 +35,7 @@ func TestChallengedProposalChallengerAttacksRootClaim(t *testing.T) {
 		"claimData": [][]interface{}{
 			// the root claim doesn't have a real parent index since it is the root, so the index is type(uint32).max
 			{4294967295, "0x0000000000000000000000000000000000000000", "0x49277EE36A024120Ee218127354c4a3591dc90A9", 1, "0x00", 1, 123456},
-			// root claim is being attacked by the CB challenger
+			// root claim is being attacked by the honest challenger
 			{0, "0x0000000000000000000000000000000000000000", "0xc96775081bcA132B0E7cbECDd0B58d9Ec07Fdaa4", 1, "0x00", 2, 123456},
 			{1, "0x0000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000", 1, "0x00", 3, 123456},
 			{2, "0x0000000000000000000000000000000000000000", "0xc96775081bcA132B0E7cbECDd0B58d9Ec07Fdaa4", 1, "0x00", 4, 1233456},
@@ -66,9 +66,9 @@ func TestChallengedProposalChallengerDefendsRootClaim(t *testing.T) {
 
 	// set the params
 	params := map[string]any{
-		"disputeGame":  "0x0000000000000000000000000000000000000000",
-		"cbProposer":   "0x49277EE36A024120Ee218127354c4a3591dc90A9",
-		"cbChallenger": "0xc96775081bcA132B0E7cbECDd0B58d9Ec07Fdaa4",
+		"disputeGame":      "0x0000000000000000000000000000000000000000",
+		"honestProposer":   "0x49277EE36A024120Ee218127354c4a3591dc90A9",
+		"honestChallenger": "0xc96775081bcA132B0E7cbECDd0B58d9Ec07Fdaa4",
 	}
 
 	// read in the gate file
@@ -86,7 +86,7 @@ func TestChallengedProposalChallengerDefendsRootClaim(t *testing.T) {
 		"claimData": [][]interface{}{
 			{4294967295, "0x0000000000000000000000000000000000000000", "0x49277EE36A024120Ee218127354c4a3591dc90A9", 1, "0x00", 1, 123456},
 			{0, "0x0000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000", 1, "0x00", 2, 123456},
-			// root claim is being defended by the CB challenger
+			// root claim is being defended by the honest challenger
 			{1, "0x0000000000000000000000000000000000000000", "0xc96775081bcA132B0E7cbECDd0B58d9Ec07Fdaa4", 1, "0x00", 3, 123456},
 			{2, "0x0000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000", 1, "0x00", 4, 1233456},
 		},
@@ -111,15 +111,15 @@ func TestChallengedProposalChallengerDefendsRootClaim(t *testing.T) {
 	}
 }
 
-func TestChallengedProposalChallengerNotCB(t *testing.T) {
-	// We DO NOT expect an alert to be fired when the challenger is not CB, regardless of
-	// whether the root claim submitted by CB proposer is challenged or not
+func TestChallengedProposalChallengerNotKnown(t *testing.T) {
+	// We DO NOT expect an alert to be fired when the challenger is not the honest challenger, regardless of
+	// whether the root claim submitted by the honest proposer is challenged or not
 
 	// set the params
 	params := map[string]any{
-		"disputeGame":  "0x0000000000000000000000000000000000000000",
-		"cbProposer":   "0x49277EE36A024120Ee218127354c4a3591dc90A9",
-		"cbChallenger": "0xc96775081bcA132B0E7cbECDd0B58d9Ec07Fdaa4",
+		"disputeGame":      "0x0000000000000000000000000000000000000000",
+		"honestProposer":   "0x49277EE36A024120Ee218127354c4a3591dc90A9",
+		"honestChallenger": "0xc96775081bcA132B0E7cbECDd0B58d9Ec07Fdaa4",
 	}
 
 	// read in the gate file
@@ -162,15 +162,15 @@ func TestChallengedProposalChallengerNotCB(t *testing.T) {
 	}
 }
 
-func TestChallengedProposalProposerNotCB(t *testing.T) {
-	// We DO NOT expect an alert to be fired when the proposer is not CB, regardless of
+func TestChallengedProposalProposerNotKnown(t *testing.T) {
+	// We DO NOT expect an alert to be fired when the proposer is not the honest proposer, regardless of
 	// whether the challenger attacks the root claim or not
 
 	// set the params
 	params := map[string]any{
-		"disputeGame":  "0x0000000000000000000000000000000000000000",
-		"cbProposer":   "0x49277EE36A024120Ee218127354c4a3591dc90A9",
-		"cbChallenger": "0xc96775081bcA132B0E7cbECDd0B58d9Ec07Fdaa4",
+		"disputeGame":      "0x0000000000000000000000000000000000000000",
+		"honestProposer":   "0x49277EE36A024120Ee218127354c4a3591dc90A9",
+		"honestChallenger": "0xc96775081bcA132B0E7cbECDd0B58d9Ec07Fdaa4",
 	}
 
 	// read in the gate file
@@ -186,9 +186,9 @@ func TestChallengedProposalProposerNotCB(t *testing.T) {
 		},
 		"claimCount": 4,
 		"claimData": [][]interface{}{
-			// root claim is NOT proposed by the CB proposer
+			// root claim is NOT proposed by the honest proposer
 			{4294967295, "0x0000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000", 1, "0x00", 1, 123456},
-			// root claim is challenged by the CB challenger
+			// root claim is challenged by the honest challenger
 			{0, "0x0000000000000000000000000000000000000000", "0xc96775081bcA132B0E7cbECDd0B58d9Ec07Fdaa4", 1, "0x00", 2, 123456},
 			{1, "0x0000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000", 1, "0x00", 3, 123456},
 			{2, "0x0000000000000000000000000000000000000000", "0xc96775081bcA132B0E7cbECDd0B58d9Ec07Fdaa4", 1, "0x00", 4, 1233456},
@@ -219,9 +219,9 @@ func TestChallengedProposalOnlyRootClaim(t *testing.T) {
 
 	// set the params
 	params := map[string]any{
-		"disputeGame":  "0x0000000000000000000000000000000000000000",
-		"cbProposer":   "0x49277EE36A024120Ee218127354c4a3591dc90A9",
-		"cbChallenger": "0xc96775081bcA132B0E7cbECDd0B58d9Ec07Fdaa4",
+		"disputeGame":      "0x0000000000000000000000000000000000000000",
+		"honestProposer":   "0x49277EE36A024120Ee218127354c4a3591dc90A9",
+		"honestChallenger": "0xc96775081bcA132B0E7cbECDd0B58d9Ec07Fdaa4",
 	}
 
 	// read in the gate file
@@ -267,9 +267,9 @@ func TestChallengedProposalNoMoveEventInBlock(t *testing.T) {
 
 	// set the params, which DO matter for these tests
 	params := map[string]any{
-		"disputeGame":  "0x0000000000000000000000000000000000000000",
-		"cbProposer":   "0x49277EE36A024120Ee218127354c4a3591dc90A9",
-		"cbChallenger": "0xc96775081bcA132B0E7cbECDd0B58d9Ec07Fdaa4",
+		"disputeGame":      "0x0000000000000000000000000000000000000000",
+		"honestProposer":   "0x49277EE36A024120Ee218127354c4a3591dc90A9",
+		"honestChallenger": "0xc96775081bcA132B0E7cbECDd0B58d9Ec07Fdaa4",
 	}
 
 	// read in the gate file
@@ -285,7 +285,7 @@ func TestChallengedProposalNoMoveEventInBlock(t *testing.T) {
 		"claimData": [][]interface{}{
 			// the root claim doesn't have a real parent index since it is the root, so the index is type(uint32).max
 			{4294967295, "0x0000000000000000000000000000000000000000", "0x49277EE36A024120Ee218127354c4a3591dc90A9", 1, "0x00", 1, 123456},
-			// root claim is being attacked by the CB challenger
+			// root claim is being attacked by the honest challenger
 			{0, "0x0000000000000000000000000000000000000000", "0xc96775081bcA132B0E7cbECDd0B58d9Ec07Fdaa4", 1, "0x00", 2, 123456},
 			{1, "0x0000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000", 1, "0x00", 3, 123456},
 			{2, "0x0000000000000000000000000000000000000000", "0xc96775081bcA132B0E7cbECDd0B58d9Ec07Fdaa4", 1, "0x00", 4, 1233456},

@@ -1,8 +1,8 @@
 use Call, Events, Contains, Range, Len from hexagate;
 
 param disputeGame: address;
-param cbProposer: address;
-param cbChallenger: address;
+param honestProposer: address;
+param honestChallenger: address;
 
 // Source to retrieve `Move` events from the specified dispute game contract
 source moveEvents: list<tuple<integer, bytes, address>> = Events {
@@ -43,9 +43,9 @@ source attackClaimParentIndices: list<integer> = Range {
 //      by checking the parentIndex of the claim. If the parentIndex is 0 or an even number, then the claim is an
 //      attack ultimately against the root claim, no matter the depth.
 source challengerAttacks: list<boolean> = [
-    (claim[2] == cbChallenger) and Contains { sequence: attackClaimParentIndices, item: claim[0] }
+    (claim[2] == honestChallenger) and Contains { sequence: attackClaimParentIndices, item: claim[0] }
     for claim in claimData
-    if (rootClaimProposer == cbProposer)
+    if (rootClaimProposer == honestProposer)
 ];
 
 // Trigger an alert when an attack by the CB challenger on a state output root proposed by the CB proposer is detected

@@ -14,8 +14,8 @@ func TestETHDeficitTotalCreditDeficit(t *testing.T) {
 
 	// set the params, which don't really matter for these tests
 	params := map[string]any{
-		"disputeGame":  "0x0000000000000000000000000000000000000000",
-		"cbChallenger": "0x0000000000000000000000000000000000000000",
+		"disputeGame":      "0x0000000000000000000000000000000000000000",
+		"honestChallenger": "0x0000000000000000000000000000000000000000",
 	}
 
 	// read in the gate file
@@ -56,8 +56,8 @@ func TestETHDeficitTotalETHBalanceDeficit(t *testing.T) {
 
 	// set the params
 	params := map[string]any{
-		"disputeGame":  "0x0000000000000000000000000000000000000000",
-		"cbChallenger": "0x0000000000000000000000000000000000000000",
+		"disputeGame":      "0x0000000000000000000000000000000000000000",
+		"honestChallenger": "0x0000000000000000000000000000000000000000",
 	}
 
 	// read in the gate file
@@ -98,8 +98,8 @@ func TestETHDeficitCurrCreditZeroTotalCreditNonZero(t *testing.T) {
 
 	// set the params
 	params := map[string]any{
-		"disputeGame":  "0x0000000000000000000000000000000000000000",
-		"cbChallenger": "0x0000000000000000000000000000000000000000",
+		"disputeGame":      "0x0000000000000000000000000000000000000000",
+		"honestChallenger": "0x0000000000000000000000000000000000000000",
 	}
 
 	// read in the gate file
@@ -140,8 +140,8 @@ func TestETHDeficitNoDeficit(t *testing.T) {
 
 	// set the params
 	params := map[string]any{
-		"disputeGame":  "0x0000000000000000000000000000000000000000",
-		"cbChallenger": "0x0000000000000000000000000000000000000000",
+		"disputeGame":      "0x0000000000000000000000000000000000000000",
+		"honestChallenger": "0x0000000000000000000000000000000000000000",
 	}
 
 	// read in the gate file
