@@ -1,6 +1,6 @@
 ## Purpose
 
-The `credit_and_bond_discrepancy.gate` monitor ensures the **safety** and integrity of the fault proof system on the **Base** by verifying that the ETH bond amounts credited during the resolution of dispute games match the original bond values. In a properly functioning system, when a dispute game or its subgames are resolved, the bond amounts unlocked and credited to participants should exactly equal the original bond amounts they deposited. Discrepancies in these amounts indicate potential bugs in the dispute game contracts, which could compromise the incentivization mechanism and put user funds at risk.
+The `credit_and_bond_discrepancy.gate` monitor ensures the **safety** and integrity of the fault proof system by verifying that the ETH bond amounts credited during the resolution of dispute games match the original bond values. In a properly functioning system, when a dispute game or its subgames are resolved, the bond amounts unlocked and credited to participants should exactly equal the original bond amounts that were deposited. Discrepancies in these amounts indicate potential bugs in the dispute game contracts or the contracts that hold the bonds (`DelayedWETH`), which could compromise the incentivization mechanism and put user funds at risk.
 
 ## Technical Overview
 

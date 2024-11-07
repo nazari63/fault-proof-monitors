@@ -1,8 +1,6 @@
-# incorrect_bond_balance.gate
-
 ## Purpose
 
-The `incorrect_bond_balance.gate` monitor ensures the **safety** and integrity of the fault proof system on the **Base** by verifying that the total ETH bonds associated with a dispute game are correctly accounted for during the resolution process. Specifically, it checks that the sum of the ETH bonds for resolved claims and unresolved claims equals the maximum amount of ETH that the dispute game has ever held. Any imbalance indicates potential issues such as skipped subgames, multiple resolutions, or under-accounted claims, which can compromise the incentivization mechanism and result in financial losses for participants.
+The `incorrect_bond_balance.gate` monitor ensures the **safety** and integrity of the fault proof system by verifying that the total ETH bonds associated with a dispute game are correctly accounted for during the resolution process. Specifically, it checks that the sum of the ETH bonds for resolved claims and unresolved claims equals the maximum amount of ETH that the dispute game has ever held. Any imbalance indicates potential issues such as skipped subgames, multiple resolutions, or under-accounted claims, which can compromise the incentivization mechanism and result in financial losses for participants.
 
 ## Technical Overview
 
@@ -45,10 +43,6 @@ The `incorrect_bond_balance.gate` monitor ensures the **safety** and integrity o
 
 - **Detecting Critical Issues**: Discrepancies may indicate that subgames have been skipped, resolved out of order, or resolved multiple times, pointing to broader issues in the dispute game logic.
 
-- **Maintaining System Integrity**: Ensures that the dispute resolution process operates securely and reliably, preserving the safety of the Base network.
-
 ## Parameters
 
 - `disputeGame`: Address of the dispute game contract being monitored.
-
--

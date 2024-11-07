@@ -1,6 +1,6 @@
 ## Purpose
 
-The `eth_deficit.gate` monitor ensures the **safety** and integrity of the fault proof system on the **Base** network by detecting any deficits of ETH in the `DelayedWETH` contract associated with a specific dispute game. The `DelayedWETH` contract holds the ETH bonds deposited by participants in dispute games. A deficit indicates that more ETH has been withdrawn than should be allowed, potentially due to bugs in bond accounting, resolution, or withdrawal processes, which can result in financial losses for honest participants.
+The `eth_deficit.gate` monitor ensures the **safety** and integrity of the fault proof system by detecting any deficits of ETH in the `DelayedWETH` contract associated with the specified dispute game. The `DelayedWETH` contract holds the ETH bonds deposited by participants in dispute games. A deficit indicates that more ETH has been withdrawn than should be allowed, potentially due to bugs in bond accounting or dispute game resolution, which can result in financial losses for honest participants. Note this monitor tracks deficits in relation to the Challenger (`cbChallenger`), who is assumed to be operating honestly and participating in every dispute game as necessary.
 
 ## Technical Overview
 
@@ -10,7 +10,7 @@ The `eth_deficit.gate` monitor ensures the **safety** and integrity of the fault
 
    - **DelayedWETH Address**: Retrieves the `DelayedWETH` contract address associated with the specific `disputeGame`.
 
-   - **Challenger's Claim Credit (`claimCredit`)**: The amount of ETH that the Coinbase Challenger (`cbChallenger`) can currently claim from the `disputeGame`.
+   - **Challenger's Claim Credit (`claimCredit`)**: The amount of ETH that the Challenger (`cbChallenger`) can currently claim from the `disputeGame`.
 
    - **Challenger's Total Credit (`totalCredit`)**: The total amount of ETH that has been unlocked for the `cbChallenger` in the `DelayedWETH` contract.
 
@@ -40,12 +40,11 @@ The `eth_deficit.gate` monitor ensures the **safety** and integrity of the fault
 
 - **Ensuring Correct Bond Accounting**: Accurate tracking of bonds is crucial for the incentivization mechanism of dispute games. Over or under-accounting undermines trust and the proper functioning of the system.
 
-- **Detecting Critical Issues Early**: Prompt identification of discrepancies allows for immediate investigation and correction of potential bugs in bond accounting, resolution logic, or withdrawal processes.
+- **Detecting Critical Issues Early**: Prompt identification of discrepancies allows for immediate investigation and correction of potential bugs in bond accounting or resolution logic.
 
-- **Maintaining System Integrity**: Ensures that the dispute game mechanism operates securely, preserving the safety and reliability of the Base network.
+- **Maintaining System Integrity**: Ensures that the dispute game mechanism operates securely, preserving the safety and reliability of the network.
 
 ## Parameters
 
 - `disputeGame`: Address of the dispute game contract being monitored.
-- `cbChallenger`: Address of the Coinbase Challenger.
-
+- `cbChallenger`: Address of the Challenger.
