@@ -18,8 +18,8 @@ Each monitor in this repository targets specific aspects of the fault proof syst
 | [duplicate_dispute_game.gate](./monitors/duplicate_dispute_game.gate) | [duplicate_dispute_game_test.go](./tests/duplicate_dispute_game_test.go) | [duplicate_dispute_game.md](./docs/duplicate_dispute_game.md) |
 | [eth_deficit.gate](./monitors/eth_deficit.gate) | [eth_deficit_test.go](./tests/eth_deficit_test.go) | [eth_deficit.md](./docs/eth_deficit.md) |
 | [eth_withdrawn_early.gate](./monitors/eth_withdrawn_early.gate) | [eth_withdrawn_early_test.go](./tests/eth_withdrawn_early_test.go) | [eth_withdrawn_early.md](./docs/eth_withdrawn_early.md) |
-| [fault_proof_detection_parent.gate](./monitors/fault_proof_detection_parent.gate) | [fault_proof_detection_parent_and_child.md](./docs/fault_proof_detection_parent_and_child.md#fault-proof-detection-parent) | N/A |
-| [fault_proof_detection_child.gate](./monitors/fault_proof_detection_child.gate) | [fault_proof_detection_parent_and_child.md](./docs/fault_proof_detection_parent_and_child.md#fault-proof-detection-child) | N/A |
+| [fault_proof_detection_parent.gate](./monitors/fault_proof_detection_parent.gate) | N/A | [fault_proof_detection_parent_and_child.md](./docs/fault_proof_detection_parent_and_child.md#fault-proof-detection-parent) |
+| [fault_proof_detection_child.gate](./monitors/fault_proof_detection_child.gate) | N/A | [fault_proof_detection_parent_and_child.md](./docs/fault_proof_detection_parent_and_child.md#fault-proof-detection-child) |
 | [incorrect_bond_balance.gate](./monitors/incorrect_bond_balance.gate) | [incorrect_bond_balance_test.go](./tests/incorrect_bond_balance_test.go) | [incorrect_bond_balance.md](./docs/incorrect_bond_balance.md) |
 | [unresolvable_dispute_game.gate](./monitors/unresolvable_dispute_game.gate) | [unresolvable_dispute_game_test.go](./tests/unresolvable_dispute_game_test.go) | [unresolvable_dispute_game.md](./docs/unresolvable_dispute_game.md) |
 
