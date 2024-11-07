@@ -12,18 +12,17 @@ Each monitor in this repository targets specific aspects of the fault proof syst
 
 | Monitor | Tests | Docs | Deployment |
 | ------- | ----- | ---- | ---- |
-| [challenged_proposal.gate](./monitors/challenged_proposal.gate) | [challenged_proposal_test.go](./tests/challenged_proposal_test.go) | [challenged_proposal.md](./docs/challenged_proposal.md) | perDisputeGame |
-| [challenger_loses.gate](./monitors/challenger_loses.gate) | [challenger_loses_test.go](./tests/challenger_loses_test.go) | [challenger_loses.md](./docs/challenger_loses.md) | perDisputeGame |
-| [credit_and_bond_discrepancy.gate](./monitors/credit_and_bond_discrepancy.gate) | [credit_and_bond_discrepancy_test.go](./tests/credit_and_bond_discrepancy_test.go) | [credit_and_bond_discrepancy.md](./docs/credit_and_bond_discrepancy.md) | perDisputeGame |
-| [duplicate_dispute_game.gate](./monitors/duplicate_dispute_game.gate) | [duplicate_dispute_game_test.go](./tests/duplicate_dispute_game_test.go) | [duplicate_dispute_game.md](./docs/duplicate_dispute_game.md) | singleInstance |
-| [eth_deficit.gate](./monitors/eth_deficit.gate) | [eth_deficit_test.go](./tests/eth_deficit_test.go) | [eth_deficit.md](./docs/eth_deficit.md) | perDisputeGame |
-| [eth_withdrawn_early.gate](./monitors/eth_withdrawn_early.gate) | [eth_withdrawn_early_test.go](./tests/eth_withdrawn_early_test.go) | [eth_withdrawn_early.md](./docs/eth_withdrawn_early.md) | perDisputeGame |
-| [fault_proof_detection_parent.gate](./monitors/fault_proof_detection_parent.gate) | N/A | [fault_proof_detection_parent_and_child.md](./docs/fault_proof_detection_parent_and_child.md#fault-proof-detection-parent) | singleInstance |
-| [fault_proof_detection_child.gate](./monitors/fault_proof_detection_child.gate) | N/A | [fault_proof_detection_parent_and_child.md](./docs/fault_proof_detection_parent_and_child.md#fault-proof-detection-child) | specificDisputeGame |
-| [incorrect_bond_balance.gate](./monitors/incorrect_bond_balance.gate) | [incorrect_bond_balance_test.go](./tests/incorrect_bond_balance_test.go) | [incorrect_bond_balance.md](./docs/incorrect_bond_balance.md) | perDisputeGame |
-| [unresolvable_dispute_game.gate](./monitors/unresolvable_dispute_game.gate) | [unresolvable_dispute_game_test.go](./tests/unresolvable_dispute_game_test.go) | [unresolvable_dispute_game.md](./docs/unresolvable_dispute_game.md) | perDisputeGame |
+| [challenged_proposal.gate](./monitors/challenged_proposal.gate) | [challenged_proposal_test.go](./tests/challenged_proposal_test.go) | [challenged_proposal.md](./docs/challenged_proposal.md) | Per DisputeGame |
+| [challenger_loses.gate](./monitors/challenger_loses.gate) | [challenger_loses_test.go](./tests/challenger_loses_test.go) | [challenger_loses.md](./docs/challenger_loses.md) | Per DisputeGame |
+| [credit_and_bond_discrepancy.gate](./monitors/credit_and_bond_discrepancy.gate) | [credit_and_bond_discrepancy_test.go](./tests/credit_and_bond_discrepancy_test.go) | [credit_and_bond_discrepancy.md](./docs/credit_and_bond_discrepancy.md) | Per DisputeGame |
+| [duplicate_dispute_game.gate](./monitors/duplicate_dispute_game.gate) | [duplicate_dispute_game_test.go](./tests/duplicate_dispute_game_test.go) | [duplicate_dispute_game.md](./docs/duplicate_dispute_game.md) | Single Instance |
+| [eth_deficit.gate](./monitors/eth_deficit.gate) | [eth_deficit_test.go](./tests/eth_deficit_test.go) | [eth_deficit.md](./docs/eth_deficit.md) | Per DisputeGame |
+| [eth_withdrawn_early.gate](./monitors/eth_withdrawn_early.gate) | [eth_withdrawn_early_test.go](./tests/eth_withdrawn_early_test.go) | [eth_withdrawn_early.md](./docs/eth_withdrawn_early.md) | Per DisputeGame |
+| [fault_proof_detection_parent.gate](./monitors/fault_proof_detection_parent.gate) | N/A | [fault_proof_detection_parent_and_child.md](./docs/fault_proof_detection_parent_and_child.md#fault-proof-detection-parent) | Single Instance |
+| [fault_proof_detection_child.gate](./monitors/fault_proof_detection_child.gate) | N/A | [fault_proof_detection_parent_and_child.md](./docs/fault_proof_detection_parent_and_child.md#fault-proof-detection-child) | Specific DisputeGame |
+| [incorrect_bond_balance.gate](./monitors/incorrect_bond_balance.gate) | [incorrect_bond_balance_test.go](./tests/incorrect_bond_balance_test.go) | [incorrect_bond_balance.md](./docs/incorrect_bond_balance.md) | Per DisputeGame |
+| [unresolvable_dispute_game.gate](./monitors/unresolvable_dispute_game.gate) | [unresolvable_dispute_game_test.go](./tests/unresolvable_dispute_game_test.go) | [unresolvable_dispute_game.md](./docs/unresolvable_dispute_game.md) | Per DisputeGame |
 
-*only deployed to dispute games triggered by parent monitor
 ### Testing
 
 Several of the Fault Proof monitors have unit tests that can be run to ensure the monitor is working correctly. Hexagate's API provides an endpoint for mocking and testing gate monitors, but in order to use the endpoint you must have an API key. Once you have a Hexagate API key, configure the `.env` with the key:
@@ -42,13 +41,13 @@ go test -v ./tests/hexagate_api.go ./tests/<test_file> # run specific monitor te
 ## Deployment Workflows
 
 There are three unique deployment workflows for the above monitors:
-- **singleInstance**: Deployed once as a single invariant monitor.
-- **perDisputeGame**: Deployed to every dispute game created following DisputeGameCreated event.
-- **specificDisputeGame**: Deployed to specific dispute games following an alert from a parent monitor (ex. fault_proof_detection_parent).
+- **Single Instance**: Deployed once as a single invariant monitor.
+- **Per DisputeGame**: Deployed to every dispute game created following DisputeGameCreated event.
+- **Specific DisputeGame**: Deployed to specific dispute games following an alert from a parent monitor (ex. fault_proof_detection_parent).
 
 perDisputeGame and specificDisputeGame monitors require additional workflow automation to trigger monitor deployment. Refer to the following sections for more details.
 
-### perDisputeGame 
+### Per DisputeGame 
 
 To deploy monitors to each dispute game created:
 
@@ -71,7 +70,7 @@ flowchart TD
     B --> I[unresolvable_dispute_game]
 ```
 
-#### specificDisputeGame
+#### Specific DisputeGame
 
 To deploy monitors to a specific dispute game:
 
@@ -87,7 +86,3 @@ flowchart TD
     A[Fault Proof Detection Parent] -->|Invalid Output Detected| B[Alert Triggered]
     B -->|Deploy| C[Fault Proof Detection Child]
 ```
-
-
-
-
