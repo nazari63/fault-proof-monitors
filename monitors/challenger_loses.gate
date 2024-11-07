@@ -1,7 +1,7 @@
 use Call, Calls, Events, HistoricalEvents, Contains, Len, Range, FilterAddressesInTrace from hexagate;
 
 // Parameters to be passed
-param cbChallenger: address;
+param honestChallenger: address;
 param disputeGame: address;
 
 // Filter to only run this invariant if the disputeGame address is in the trace
@@ -46,27 +46,27 @@ source oddParentIndices: list<integer> = Range {
     step: 2
 };
 
-// Filter the historical events where the claimant is cbChallenger and the parentIndex is even (challenge move)
+// Filter the historical events where the claimant is honestChallenger and the parentIndex is even (challenge move)
 source challengeMoves: list<tuple<integer, bytes, address>> = [
     event
     for event in historicalMoveEvents
-    if (event[2] == cbChallenger) and Contains { sequence: evenParentIndices, item: event[0] }
+    if (event[2] == honestChallenger) and Contains { sequence: evenParentIndices, item: event[0] }
 ];
 
-// Filter the historical events where the claimant is cbChallenger and the parentIndex is odd (defense move)
+// Filter the historical events where the claimant is honestChallenger and the parentIndex is odd (defense move)
 source defenseMoves: list<tuple<integer, bytes, address>> = [
     event
     for event in historicalMoveEvents
-    if (event[2] == cbChallenger) and Contains { sequence: oddParentIndices, item: event[0] }
+    if (event[2] == honestChallenger) and Contains { sequence: oddParentIndices, item: event[0] }
 ];
 
-// Check if the CB challenger lost as a challenger
+// Check if the challenger lost as a challenger
 source challengerLost: boolean = (resolveStatus == 2) and (Len { sequence: challengeMoves } > 0);
 
-// Check if the CB challenger lost as a defender
+// Check if the challenger lost as a defender
 source defenderLost: boolean = (resolveStatus == 1) and (Len { sequence: defenseMoves } > 0);
 
-// Check if the CB challenger lost any subgames as well
+// Check if the challenger lost any subgames as well
 source claimResults: list<tuple<integer,address,address,integer,bytes,integer,integer>> = [
     Call {
         contract: disputeGame,
@@ -79,23 +79,23 @@ source claimResults: list<tuple<integer,address,address,integer,bytes,integer,in
 source lostSubgames: list<boolean> = [
     subgame[1] != zeroAddr ? true : false
     for subgame in claimResults
-    if (subgame[2] == cbChallenger)
+    if (subgame[2] == honestChallenger)
 ];
 
-// Invariant to trigger an alert if the CB challenger lost as a challenger
+// Invariant to trigger an alert if the challenger lost as a challenger
 invariant {
-    description: "CB challenger lost the dispute game while challenging a state root",
+    description: "Challenger lost the dispute game while challenging a state root",
     condition: (Len { sequence: addressesInTrace } > 0) ? (Len { sequence: resolveEvents } == 0 ? true : !challengerLost) : true
 };
 
-// Invariant to trigger an alert if the CB challenger lost as a defender
+// Invariant to trigger an alert if the challenger lost as a defender
 invariant {
-    description: "CB challenger lost the dispute game while defending a state root",
+    description: "Challenger lost the dispute game while defending a state root",
     condition: (Len { sequence: addressesInTrace } > 0) ? (Len { sequence: resolveEvents } == 0 ? true : !defenderLost) : true
 };
 
-// Invariant to trigger an alert if CB Challenger lost any subgames
+// Invariant to trigger an alert if Challenger lost any subgames
 invariant {
-    description: "CB challenger lost one or more subgames",
+    description: "Challenger lost one or more subgames",
     condition: (Len { sequence: addressesInTrace } > 0) ? (!Contains { sequence: lostSubgames, item: true }) : true
 };
