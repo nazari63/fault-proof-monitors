@@ -45,7 +45,7 @@ There are three unique deployment workflows for the above monitors:
 - **Per DisputeGame**: Deployed to every dispute game created following DisputeGameCreated event.
 - **Specific DisputeGame**: Deployed to specific dispute games following an alert from a parent monitor (ex. fault_proof_detection_parent).
 
-perDisputeGame and specificDisputeGame monitors require additional workflow automation to trigger monitor deployment. Refer to the following sections for more details.
+Per DisputeGame and Specific DisputeGame monitors require additional workflow automation to trigger monitor deployment. Refer to the following sections for more details.
 
 ### Per DisputeGame 
 
@@ -60,7 +60,7 @@ Refer below for a high level deployment workflow for per dispute game monitors.
 
 ```mermaid
 flowchart TD
-    A[DisputeGameCreated Event from DisputeGameFactory] -->|Trigger Deployment| B{perDisputeGame Monitors}
+    A[DisputeGameCreated Event from DisputeGameFactory] -->|Trigger Deployment| B{Per DisputeGame Monitors}
     B --> C[challenged_proposal]
     B --> D[challenger_loses]
     B --> E[credit_and_bond_discrepancy]
