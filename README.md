@@ -86,3 +86,4 @@ flowchart TD
     A[Fault Proof Detection Parent] -->|Invalid Output Detected| B[Alert Triggered]
     B -->|Deploy| C[Fault Proof Detection Child]
 ```
+This project is a demonstration of blockchain technology and smart contract integration.
